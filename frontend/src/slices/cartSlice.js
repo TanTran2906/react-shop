@@ -1,9 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { addDecimals } from '../utils/addDecimals';
+import { updateCart } from '../utils/updateCart';
 
 const initialState = localStorage.getItem('cart')
     ? JSON.parse(localStorage.getItem('cart'))
-    : { cartItems: [] };
+    : { cartItems: [], shippingAddress: {}, paymentMethod: 'PayPal' };
 
 
 const cartSlice = createSlice({
@@ -54,32 +55,21 @@ const cartSlice = createSlice({
             // Filter out the item to remove from the cart
             state.cartItems = state.cartItems.filter((x) => x._id !== action.payload);
 
-            // Calculate the items price
-            state.itemsPrice = addDecimals(
-                state.cartItems.reduce((acc, item) => acc + item.price * item.qty, 0)
-            );
+            return updateCart(state)
+        },
+        saveShippingAddress: (state, action) => {
+            state.shippingAddress = action.payload
 
-            // Calculate the shipping price | If items price is greater than 100, shipping is free | If not, shipping is 10
-            state.shippingPrice = addDecimals(state.itemsPrice > 100 ? 0 : 10);
-
-            // Calculate the tax price | Tax is 15% of the items price
-            state.taxPrice = addDecimals(
-                Number((0.15 * state.itemsPrice).toFixed(2))
-            );
-
-            // Calculate the total price | Total price is the sum of the items price, shipping price and tax price
-            state.totalPrice = (
-                Number(state.itemsPrice) +
-                Number(state.shippingPrice) +
-                Number(state.taxPrice)
-            ).toFixed(2);
-
-            // Save the cart to localStorage
+            return updateCart(state)
+        },
+        savePaymentMethod: (state, action) => {
+            state.paymentMethod = action.payload;
             localStorage.setItem('cart', JSON.stringify(state));
-        }
+        },
+
     },
 });
 
-export const { addToCart, removeFromCart } = cartSlice.actions;
+export const { addToCart, removeFromCart, saveShippingAddress, savePaymentMethod, } = cartSlice.actions;
 
 export default cartSlice.reducer;
