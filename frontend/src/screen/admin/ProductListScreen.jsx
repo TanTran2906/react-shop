@@ -9,9 +9,16 @@ import {
     useDeleteProductMutation,
     useGetProductsQuery,
 } from "../../slices/productApiSlice";
+import { useParams } from "react-router-dom";
+import Paginate from "../../components/Paginate";
 
 const ProductListScreen = () => {
-    const { data: products, isLoading, error, refetch } = useGetProductsQuery();
+    const { pageNumber } = useParams();
+
+    const { data, isLoading, error, refetch } = useGetProductsQuery({
+        pageNumber,
+    });
+    const { products, page, pages } = data;
 
     const [createProduct, { isLoading: loadingCreate }] =
         useCreateProductMutation();
@@ -116,7 +123,9 @@ const ProductListScreen = () => {
                             ))}
                         </tbody>
                     </Table>
+
                     {/* PAGINATE PLACEHOLDER */}
+                    <Paginate pages={pages} page={page} isAdmin={true} />
                 </>
             )}
         </>
