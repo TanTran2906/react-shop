@@ -7,12 +7,21 @@ import Product from '../models/productModel.js';
 
 const getProducts = asyncHandler(async (req, res) => {
 
-    // const pageSize = 2; For testing
-    const pageSize = 12;
+    // const pageSize = 1; For testing
+    const pageSize = process.env.PAGINATION_LIMIT;
     const page = Number(req.query.pageNumber) || 1;
 
-    const count = await Product.countDocuments();
-    const products = await Product.find()
+    const keyword = req.query.keyword
+        ? {
+            name: {
+                $regex: req.query.keyword,
+                $options: 'i',
+            },
+        }
+        : {};
+
+    const count = await Product.countDocuments({ ...keyword });
+    const products = await Product.find({ ...keyword })
         .limit(pageSize)
         .skip(pageSize * (page - 1));
 
@@ -30,6 +39,16 @@ const getProductById = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error('Resource not found');
 });
+
+// @desc    Get top rated products
+// @route   GET /api/products/top
+// @access  Public
+const getTopProducts = asyncHandler(async (req, res) => {
+    const products = await Product.find({}).sort({ rating: -1 }).limit(3);
+
+    res.json(products);
+});
+
 
 // @desc    Create a product
 // @route   POST /api/products
@@ -134,4 +153,4 @@ const createProductReview = asyncHandler(async (req, res) => {
 });
 
 
-export { getProducts, getProductById, createProduct, updateProduct, deleteProduct, createProductReview };
+export { getProducts, getProductById, createProduct, updateProduct, deleteProduct, createProductReview, getTopProducts, };

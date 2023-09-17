@@ -21,6 +21,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../slices/cartSlice";
 import { useState } from "react";
 import { toast } from "react-toastify";
+import Meta from "../components/Meta";
 
 const ProductScreen = () => {
     const { id: productId } = useParams();
@@ -75,6 +76,11 @@ const ProductScreen = () => {
                 </Message>
             ) : (
                 <>
+                    <Meta
+                        title={product.name}
+                        description={product.description}
+                    />
+
                     <Link to="/" className="btn btn-light my-3">
                         Go Back
                     </Link>
